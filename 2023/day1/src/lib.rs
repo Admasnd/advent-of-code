@@ -1,4 +1,6 @@
 use regex::Regex;
+use std::io::BufRead;
+
 // TODO make tests module 
 // TODO make tests for parse_calibration_line for no number found, first and last digit same, 
 // and two digits.
@@ -17,16 +19,16 @@ use regex::Regex;
 /// Here is an example of how the function works.
 /// ``` 
 /// # use regex::Regex;
-/// let re = Regex::new(r"^\D*(\d)\D*(\d?)\D*$").unwrap();
-/// assert_eq!(day1::parse_calibration_line(re,String::from("1abc2")), Some(12))
+/// let re = Regex::new(r"^\D*(\d).*?(\d?)\D*$").unwrap();
+/// assert_eq!(day1::parse_calibration_line(&re,String::from("1abc2")), Some(12))
 /// ```
 /// Here is an example where the string contains only a single digit.
 /// ```
 /// # use regex::Regex;
-/// let re = Regex::new(r"^\D*(\d)\D*(\d?)\D*$").unwrap();
-/// assert_eq!(day1::parse_calibration_line(re,String::from("treb7uchet")), Some(77))
+/// let re = Regex::new(r"^\D*(\d).*?(\d?)\D*$").unwrap();
+/// assert_eq!(day1::parse_calibration_line(&re,String::from("treb7uchet")), Some(77))
 /// ```
-pub fn parse_calibration_line(re: Regex, line: String) -> Option<u8> {
+pub fn parse_calibration_line(re: &Regex, line: String) -> Option<u8> {
     // find the first match of the first and last digit
     let caps = re.captures(&line)?;
     let first: u8 = caps.get(1)?.as_str().parse().ok()?;
@@ -38,4 +40,18 @@ pub fn parse_calibration_line(re: Regex, line: String) -> Option<u8> {
         // first digit represents both first and last digit
         None => Some(first * 10 + first)
     }
+}
+
+/// Given a regex object and lines of calibration data, parse the calibration values
+/// and sum them.
+// TODO write a code example of this function
+// TODO rewrite in a functional style that avoids mutation:w
+pub fn sum_calibration_lines<T : BufRead>(re: &Regex, reader: T) -> Option<u64> {
+    let mut sum : u64 = 0;
+    for line in reader.lines() {
+        let line = line.ok()?;
+        let number = parse_calibration_line(&re,line)?;
+        sum += number as u64;
+    }
+    Some(sum)
 }
