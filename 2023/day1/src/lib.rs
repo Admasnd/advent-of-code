@@ -45,13 +45,8 @@ pub fn parse_calibration_line(re: &Regex, line: String) -> Option<u8> {
 /// Given a regex object and lines of calibration data, parse the calibration values
 /// and sum them.
 // TODO write a code example of this function
-// TODO rewrite in a functional style that avoids mutation:w
 pub fn sum_calibration_lines<T : BufRead>(re: &Regex, reader: T) -> Option<u64> {
-    let mut sum : u64 = 0;
-    for line in reader.lines() {
-        let line = line.ok()?;
-        let number = parse_calibration_line(&re,line)?;
-        sum += number as u64;
-    }
-    Some(sum)
+    reader.lines()
+        .map(|line| parse_calibration_line(re,line.ok()?))
+        .fold(Some(0 as u64), |sum, num| Some(sum? + (num? as u64)))
 }
