@@ -1,9 +1,22 @@
 use regex::Regex;
 use std::io::BufRead;
 
-// TODO make tests module 
-// TODO make tests for parse_calibration_line for no number found, first and last digit same, 
-// and two digits.
+// If the given string that contains the spelling of a number, return the 
+// corresponding digit as string. Otherwise, return the string as is.
+fn convert_num_str(s: &str) -> &str {
+    match s {
+        "one" => "1",
+        "two" => "2",
+        "three" => "3",
+        "four" => "4",
+        "five" => "5",
+        "six" => "6",
+        "seven" => "7",
+        "eight" => "8",
+        "nine" => "9",
+        _ => s,
+    }
+}
 
 // calibration data: file where each line contains a first and last digit
 /// Given a regex that captures the first and last digit in a string and the string to be searched,
@@ -19,20 +32,21 @@ use std::io::BufRead;
 /// Here is an example of how the function works.
 /// ``` 
 /// # use regex::Regex;
-/// let re = Regex::new(r"^\D*(\d).*?(\d?)\D*$").unwrap();
+/// let re = Regex::new(r"\d").unwrap();
 /// assert_eq!(day1::parse_calibration_line(&re,String::from("1abc2")), Some(12))
 /// ```
 /// Here is an example where the string contains only a single digit.
 /// ```
 /// # use regex::Regex;
-/// let re = Regex::new(r"^\D*(\d).*?(\d?)\D*$").unwrap();
+/// let re = Regex::new(r"\d").unwrap();
 /// assert_eq!(day1::parse_calibration_line(&re,String::from("treb7uchet")), Some(77))
 /// ```
 pub fn parse_calibration_line(re: &Regex, line: String) -> Option<u8> {
     // find the first match of the first and last digit
-    let caps = re.captures(&line)?;
-    let first: u8 = caps.get(1)?.as_str().parse().ok()?;
-    let last: Option<u8> = caps.get(2)?.as_str().parse().ok();
+    let mut caps = re.find_iter(&line);
+    let first = caps.next()?;
+    let first : u8 = convert_num_str(first.as_str()).parse().ok()?;
+    let last: Option<u8> = caps.last().and_then(|m| convert_num_str(m.as_str()).parse().ok());
 
     // return two digit number
     match last {
