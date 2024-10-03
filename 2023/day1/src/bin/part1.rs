@@ -1,4 +1,4 @@
-use regex::Regex;
+use fancy_regex::Regex;
 use std::fs::File;
 use std::io::BufReader;
 use day1::sum_calibration_lines;
